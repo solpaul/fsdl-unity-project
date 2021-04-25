@@ -89,13 +89,13 @@ public class BlueAgent : Agent
         // sensor.AddObservation(Target.localPosition);
 
         // Position of center of face
-        Vector3 facePosition = transform.localPosition + transform.forward * 0.5f;
+        // Vector3 facePosition = transform.localPosition + transform.forward * 0.5f;
 
         // Vector from center of face to target
-        Vector3 toTarget = Target.localPosition - facePosition;
+        // Vector3 toTarget = Target.localPosition - facePosition;
 
         // Vector from cube center to target center
-        // Vector3 toTarget = Target.localPosition - transform.localPosition;
+        Vector3 toTarget = Target.localPosition - transform.localPosition;
 
         // Observe a normalized vector pointing to the target (3 observations)
         sensor.AddObservation(toTarget.normalized);
@@ -106,7 +106,7 @@ public class BlueAgent : Agent
         // Observe the agent's local rotation (4 observations)
         sensor.AddObservation(transform.localRotation.normalized);
 
-        // Observe the distance from agent face to target surface (1 observation)
+        // Observe the distance from agent to target surface (1 observation)
         sensor.AddObservation(toTarget.magnitude - 0.5f);
 
         // Observe the angular velocity of the agent (3 observations)
@@ -130,8 +130,8 @@ public class BlueAgent : Agent
         rBody.AddForce(move * forceMultiplier);
 
         // Get the current rotation
-        Quaternion rotationVector = transform.localRotation;
-        // Vector3 rotationVector = transform.rotation.eulerAngles;
+        // Quaternion rotationVector = transform.localRotation;
+        Vector3 rotationVector = transform.rotation.eulerAngles;
 
         float pitchChange = actionBuffers.ContinuousActions[3];
         float yawChange = actionBuffers.ContinuousActions[4];
@@ -143,20 +143,20 @@ public class BlueAgent : Agent
         // smoothRollChange = Mathf.MoveTowards(smoothRollChange, rollChange, 2f * Time.fixedDeltaTime);
 
         // Calculate pitch, yaw and roll rotation
-        Quaternion rotate = Quaternion.Euler(smoothPitchChange * pitchSpeed * Time.fixedDeltaTime,
-                                             smoothYawChange * yawSpeed * Time.fixedDeltaTime,0);
+        // Quaternion rotate = Quaternion.Euler(smoothPitchChange * pitchSpeed * Time.fixedDeltaTime,
+        //                                      smoothYawChange * yawSpeed * Time.fixedDeltaTime,0);
         // Quaternion yaw = Quaternion.Euler(0,smoothYawChange * yawSpeed * Time.fixedDeltaTime, 0);
         // Quaternion roll = Quaternion.Euler(0,0,smoothRollChange * rollSpeed * Time.fixedDeltaTime);
 
         // transform.localRotation = rotationVector * pitch * yaw * roll; 
-        transform.localRotation = rotationVector * rotate;
+        // transform.localRotation = rotationVector * rotate;
 
         // // Calculate new pitch and yaw based on smoothed values
-        // float pitch = rotationVector.x + smoothPitchChange * Time.fixedDeltaTime * pitchSpeed;
-        // float yaw = rotationVector.y + smoothYawChange * Time.fixedDeltaTime * yawSpeed;
+        float pitch = rotationVector.x + smoothPitchChange * Time.fixedDeltaTime * pitchSpeed;
+        float yaw = rotationVector.y + smoothYawChange * Time.fixedDeltaTime * yawSpeed;
 
         // // Apply the new rotation
-        // transform.rotation = Quaternion.Euler(pitch, yaw, 0f);
+        transform.rotation = Quaternion.Euler(pitch, yaw, 0f);
 
         // // Rewards
         // float distanceToTarget = Vector3.Distance(this.transform.localPosition, Target.localPosition);
@@ -191,9 +191,10 @@ public class BlueAgent : Agent
             ContactPoint contact = collision.GetContact(0);
 
             Vector3 localPoint = transform.InverseTransformPoint(contact.point);
+            // Debug.Log(localPoint);
 
             // If z value is largest then it was the front face so reward and reset
-            if (localPoint.z > localPoint.x && localPoint.z > localPoint.y)
+            if (localPoint.z > Mathf.Abs(localPoint.x) && localPoint.z > Mathf.Abs(localPoint.y))
             {
                 accumulatedTimePenalty = timePenalty * StepCount;
                 SetReward(1.0f - accumulatedTimePenalty);
