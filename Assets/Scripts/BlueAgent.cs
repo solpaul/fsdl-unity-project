@@ -19,7 +19,7 @@ public class BlueAgent : Agent
     public float yawSpeed = 100f;
 
     [Tooltip("Speed to rotate around the forward axis")]
-    // public float rollSpeed = 100f;
+    public float rollSpeed = 100f;
 
     // Allows for a time penalty
     private float timePenalty;
@@ -31,7 +31,7 @@ public class BlueAgent : Agent
     // Allows for smoother yaw changes
     private float smoothYawChange = 0f;
 
-    // Allows for smoother roll changes
+    // // Allows for smoother roll changes
     // private float smoothRollChange = 0f;
 
     public bool trainingMode;
@@ -95,10 +95,13 @@ public class BlueAgent : Agent
         // Vector3 toTarget = Target.localPosition - facePosition;
 
         // Vector from cube center to target center
-        Vector3 toTarget = Target.localPosition - transform.localPosition;
+        // Vector3 toTarget = Target.localPosition - transform.localPosition;
+
+        // convert to local coordinate system
+        // Vector3 toTargetLocal = this.transform.InverseTransformDirection(toTarget);
 
         // Observe a normalized vector pointing to the target (3 observations)
-        sensor.AddObservation(toTarget.normalized);
+        // sensor.AddObservation(toTargetLocal.normalized);
 
         // Agent velocity (3 observations)
         sensor.AddObservation(rBody.velocity);
@@ -107,7 +110,7 @@ public class BlueAgent : Agent
         sensor.AddObservation(transform.localRotation.normalized);
 
         // Observe the distance from agent to target surface (1 observation)
-        sensor.AddObservation(toTarget.magnitude - 0.5f);
+        // sensor.AddObservation(toTarget.magnitude - 0.5f);
 
         // Observe the angular velocity of the agent (3 observations)
         sensor.AddObservation(rBody.angularVelocity);
@@ -135,7 +138,7 @@ public class BlueAgent : Agent
 
         float pitchChange = actionBuffers.ContinuousActions[3];
         float yawChange = actionBuffers.ContinuousActions[4];
-        // float rollChange = actionBuffers.ContinuousActions[5];
+        // float rollChange = actionBuffers.ContinuousActions[3];
 
         // Calculate smooth rotation changes
         smoothPitchChange = Mathf.MoveTowards(smoothPitchChange, pitchChange, 2f * Time.fixedDeltaTime);
@@ -154,6 +157,7 @@ public class BlueAgent : Agent
         // // Calculate new pitch and yaw based on smoothed values
         float pitch = rotationVector.x + smoothPitchChange * Time.fixedDeltaTime * pitchSpeed;
         float yaw = rotationVector.y + smoothYawChange * Time.fixedDeltaTime * yawSpeed;
+        // float roll = rotationVector.z + smoothRollChange * Time.fixedDeltaTime * rollSpeed;
 
         // // Apply the new rotation
         transform.rotation = Quaternion.Euler(pitch, yaw, 0f);
@@ -195,11 +199,18 @@ public class BlueAgent : Agent
 
             // If z value is largest then it was the front face so reward and reset
             if (localPoint.z > Mathf.Abs(localPoint.x) && localPoint.z > Mathf.Abs(localPoint.y))
+            // If x value is largest then it was the x-front face so reward and reset
+            // if (localPoint.x > Mathf.Abs(localPoint.z) && localPoint.x > Mathf.Abs(localPoint.y))
             {
                 accumulatedTimePenalty = timePenalty * StepCount;
                 SetReward(1.0f - accumulatedTimePenalty);
                 EndEpisode();
             }
+            // else give a negative reward for touching anywhere else on the agent
+            // else
+            // {
+            //     SetReward(-.1f);
+            // }
         }
     }
     public override void Heuristic(in ActionBuffers actionsOut)
