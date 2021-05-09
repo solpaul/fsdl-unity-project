@@ -739,25 +739,6 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &145937379774685021
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 960519421787045086}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 282f342c2ab144bf38be65d4d0c4e07d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Camera: {fileID: 3981803528365137055}
-  m_SensorName: CameraSensor
-  m_Width: 32
-  m_Height: 32
-  m_Grayscale: 0
-  m_ObservationStacks: 1
-  m_Compression: 1
 --- !u!114 &959525582277954477
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -771,7 +752,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BrainParameters:
-    VectorObservationSize: 13
+    VectorObservationSize: 16
     NumStackedVectorObservations: 1
     m_ActionSpec:
       m_NumContinuousActions: 5
@@ -785,7 +766,7 @@ MonoBehaviour:
   m_BehaviorType: 0
   m_BehaviorName: BlueCube
   TeamId: 0
-  m_UseChildSensors: 1
+  m_UseChildSensors: 0
   m_UseChildActuators: 1
   m_ObservableAttributeHandling: 0
 --- !u!114 &959525582277954478
@@ -898,7 +879,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &8027124371230971273
 Transform:
   m_ObjectHideFlags: 0
@@ -1079,6 +1060,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 959525582004082682}
     m_Modifications:
+    - target: {fileID: 1180475074726172, guid: 70d695e1d8399400bb0f2873bdf29bb0, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1293290366791352, guid: 70d695e1d8399400bb0f2873bdf29bb0, type: 3}
       propertyPath: m_Name
       value: AgentCube_Blue

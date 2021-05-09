@@ -21,9 +21,11 @@ public class BlueAgent : Agent
     [Tooltip("Speed to rotate around the forward axis")]
     public float rollSpeed = 100f;
 
-    // Allows for a time penalty
+    // Allows for time penalty and direction reward
     private float timePenalty;
+    private float dirReward;
     private float accumulatedTimePenalty = 0f; 
+    // private float accumulatedDirReward = 0f;
 
     // Allows for smoother pitch changes
     private float smoothPitchChange = 0f;
@@ -44,6 +46,8 @@ public class BlueAgent : Agent
         if (MaxStep > 0)
         {
             timePenalty = 1f / MaxStep;
+
+            dirReward = 10f / MaxStep;
         }
     }
 
@@ -78,6 +82,9 @@ public class BlueAgent : Agent
 
         // Reset the agent rotation
         // transform.rotation = Quaternion.identity;  
+
+        // Reset the direction reward
+        // accumulatedDirReward = 0f;
     }
     
     public override void CollectObservations(VectorSensor sensor)
@@ -95,13 +102,26 @@ public class BlueAgent : Agent
         // Vector3 toTarget = Target.localPosition - facePosition;
 
         // Vector from cube center to target center
-        // Vector3 toTarget = Target.localPosition - transform.localPosition;
+        Vector3 toTarget = Target.localPosition - transform.localPosition;
 
         // convert to local coordinate system
-        // Vector3 toTargetLocal = this.transform.InverseTransformDirection(toTarget);
+        Vector3 toTargetLocal = this.transform.InverseTransformDirection(toTarget);
 
         // Observe a normalized vector pointing to the target (3 observations)
-        // sensor.AddObservation(toTargetLocal.normalized);
+        sensor.AddObservation(toTargetLocal.normalized);
+
+        // Add reward if dot product of agent direction and toTarget is > 0.9
+        // i.e. if agent is pointing towards target
+        float dotToTarget = Vector3.Dot(transform.forward.normalized, toTarget.normalized);
+
+        if (dotToTarget > 0.9)
+        {
+            // Pointing towards target, increase positive reward
+            AddReward(dirReward);
+            // accumulatedDirReward += dirReward;
+            // Debug.Log(accumulatedDirReward);
+
+        }
 
         // Agent velocity (3 observations)
         sensor.AddObservation(rBody.velocity);
@@ -202,8 +222,8 @@ public class BlueAgent : Agent
             // If x value is largest then it was the x-front face so reward and reset
             // if (localPoint.x > Mathf.Abs(localPoint.z) && localPoint.x > Mathf.Abs(localPoint.y))
             {
-                accumulatedTimePenalty = timePenalty * StepCount;
-                SetReward(1.0f - accumulatedTimePenalty);
+                accumulatedTimePenalty = timePenalty * StepCount * 2;
+                SetReward(2.0f - accumulatedTimePenalty);
                 EndEpisode();
             }
             // else give a negative reward for touching anywhere else on the agent
