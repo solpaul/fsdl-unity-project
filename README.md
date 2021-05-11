@@ -41,3 +41,6 @@ ML-Agents is set up so that training is done separately in Python/PyTorch. This 
 mlagents-learn config/rollerball_config.yaml run-id=rollerball_01
 ```
 
+In RL, agents learn a policy that takes in some state of the environment and outputs actions. In this case the state is the observations described above (8 numbers - x, y and z coordinates for the agent and target, and the x and y components of the agent's velocity), and the actions are forces to apply on the rolling ball (2 numbers - forces in the ball's local x and y directions). How are these inputs mapped to outputs? A neural net. In this case two fully connected layers with 128 hidden units each.
+
+The agent's policy in this case is a neural net with two fully connected layers, with 8 input numbers (x, y and z coordinates for the agent and target, and the x and y components of the agent's velocity), and 2 outputs (forces in the x and y direction). 
