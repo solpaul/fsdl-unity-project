@@ -43,4 +43,26 @@ mlagents-learn config/rollerball_config.yaml run-id=rollerball_01
 
 In RL, agents learn a policy that takes in some state of the environment and outputs actions. In this case the state is the observations described above (8 numbers - x, y and z coordinates for the agent and target, and the x and y components of the agent's velocity), and the actions are forces to apply on the rolling ball (2 numbers - forces in the ball's local x and y directions). How are these inputs mapped to outputs? A neural net. In this case two fully connected layers with 128 hidden units each.
 
-The agent's policy in this case is a neural net with two fully connected layers, with 8 input numbers (x, y and z coordinates for the agent and target, and the x and y components of the agent's velocity), and 2 outputs (forces in the x and y direction). 
+My understanding it that the agent's policy in this case is a neural net with two fully connected layers, with 8 input numbers (x, y and z coordinates for the agent and target, and the x and y components of the agent's velocity), and 2 outputs (forces in the x and y direction).
+
+![vector policy nn](./vector_policy_nn.PNG)
+
+ML-Agents provides Tensorboard integration so I was able to look at training progress for the average reward and episode length.
+
+![tensorboard RollerBall_01](./tensorboard_rollerball_01.PNG)
+
+This was a simple task so it converged to a maximum average reward of 1 in less than 30k steps (10 minutes on my local machine). 
+
+##PPO Algorithm
+
+Part of my goal was to understand more about reinforcement learning, but of course this is a very big subject so I was only able to scratch the surface. Despite this, I did my best to understand the algorithm I used in ML-Agents to train my agents: Proximal Policy Optimization (PPO). PPO is an algorithm developed by OpenAI in 2017 with three broad goals:
+
+- Ease of implementation
+- Sample efficient
+- Easy to tune
+
+A few words on the later two of these goals. PPO is a policy gradient method, which means it learns directly from whatver the agent experiences (run a batch of sequences, use the rewards to calculate an objective function, back propagate the gradient to update the policy). The issue is that the policy gradient may use the information ineffieciently (for example, an episode which ends in a negative reward but during which the agent actually displayed desireable behaviours) - there is a credit assignment problem in a sparse reward setting. Which behaviours are actually causing the reward? RL algorithms can be very sample inefficient.
+
+The training data is also dependent on the current policy, rather than a static dataset (e.g. with supervised learning), so the data distribution over observations and rewards are constantly changing. This can make it very unstable and sensitive to hyperparameters - for example, choosing a particular learning rate can cause training to fall into a local optima from which it cannot escape, because it cannot generate the data to do so.
+
+PPO seeks to to update
