@@ -136,8 +136,33 @@ After a significant investment of time, I finally felt that the performance was 
 
 ## Speeding up training - GPUs in cloud
 
+the more than three hours per training run was a limitation on my ability to try different things. I was training on my own laptop without a GPU so I thought I could get a considerable speed-up by using a cloud machine with a GPU. I had not used Azure previously so I signed up for an account to take advantage of the free credits available.
+
+Spinning up an appropriate instance was straightforward. I went for a NC6s_v3 VM with 6 CPUs and a V100 GPU, using Windows to match my own machine. Surprisingly, the increase in speed was minimal. I couldn't quite figure out why this was the case, although reading Unity forums it seems this is an issue many face. Users suggested that significant advantage would only be found for visual observations, so I returned to my local machine and saved the VM for when I started using cameras in my agent.
+
+Ultimately, this meant that I was limited in what I could test. I wanted to try some hyperparameter optimisation, but it was not feasible in the time I had with these extended training times.
+
 ## Directional observation using rays
 
+Since I had succesfully trained an agent by giving it a vector to the target as an input, it seemed likely that replacing this vector with a raycast would yeild similar results. Rays in Unity provide information by detecting objects at straight lines from the agent. I created an array of these rays to scan the volume directly in front of the agent, and removed the previous vector observation.
+
+![BlueAgent Rays](./blueagent_rays.PNG)
+
+Initially, my rays were hitting the boundary, but I was unable to successfully train an agent in this way. I made the boundaries invisible to the rays and was able to get the agent to learn.
+
+![tensorboard BlueAgent_09](./tensorboard_blueagent_09.PNG)
+
+As can be seen, the introduction of rays resulted in a huge increase in training time. I ended up training it for 50 million steps over almost 2.5 days! Still, the agent did eventually achieve reasonable performance, the average reward was lower and episode time higher, but this was to be expected since the agent needed to scan the area around it by rotating, which it did so effectively.
+
 ## Visual observation
+
+Finally, I was able to try the visual observation functionality in Unity ML-Agents. This incorporates a convnet to process images from a camera on the agent, and feed the output alongside the other observations. To set this up I added a forward facing camera to the agent and included a visual encoder type in the yaml file. I knew that this was going to increase the size of the network considerably, so I kept the image as small as possible at just 32x32 pixels (in RGB in order to ensure the red target could be distinguihed from the background and shadows in the scene).
+
+![BlueAgent Camera](./blueagent_camera.PNG)
+
+As can be seen, this resolution was suffient to distiguish the target. Training was done one last time in the same way.
+
+![tensorboard BlueAgent_09](./tensorboard_blueagent_12.PNG)
+
 
 ## Summary and learnings
