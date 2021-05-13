@@ -118,13 +118,23 @@ This experimentation was not entirely wasted since it allowed me to observe impr
 
 At this point I put some thought into the other side of the problem, the controls. I realised that the roll (rotation around the z-axis) was redundant in terms of the task I was trying to achieve. It didn't matter if the face was 'upside down' upon impact with the target, only that it was facing the target. This meant I could reduce the output space to five numbers (forces in the x, y and z directions; rotations around the x-axis and y-axis) which helped considerably.
 
-Finally, I increased the capacity of the neural network to 3 layers of 512 units each. 
+Finally, I considered the model and reward system. I wanted the agent to move towards the target as efficiently as possible, so I added a time penalty. The longer the agent took to get to the target, the lower the reward. I increased the capacity of the neural network to 3 layers of 512 units each.
 
-LOOK FOR RUN WITHOUT TIME PENALTY
+Rewards:
+
+- Hit target - 1.0
+- Hit boundary - -0.5
+- Time penalty - linearly increasing from 0 at start of episode to -1 at end of episode (after the maximum of 1000 steps)
+
+I increased the capacity of the neural network to 3 layers of 512 units each. 
 
 ![tensorboard BlueAgent_02](./tensorboard_blueagent_02.PNG)
 
-Getting the reward
+As can be seen there was a large increase in training time, 7 million steps (over 3 hours on my local machine). Furthermore, while performance looked reasonable in terms of the average reward, the agent would sometimes lack smoothness in getting to the target. I made one more observation adjustment, changing the agent-to-target vector to the local coordinate system of the agent.
+
+After a significant investment of time, I finally felt that the performance was good enough to move on. 
+
+## Speeding up training - GPUs in cloud
 
 ## Directional observation using rays
 
