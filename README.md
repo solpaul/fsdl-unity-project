@@ -82,7 +82,7 @@ Here's what the environment looked like.
 
 ![RollerBall 02 Environment](./rollerball_02_environment.PNG)
 
-All I needed to add to the C# script controlling the behaviour of the agent was an additional observation for the velocity of the agent in the z (vertical) direction, and the negative reward for a collision with the boundary. In the 2D plance there was an easy way for episodes to end by the agent sphere rolling off the edge, this was not the case now so I added a time limit to each episode of 1000 steps. Finally, since the problem had increased in complexity I also took advantage of the ability to run multiple environments simultaneously in Unity, adding a further 7 copies of the agent/target/box.
+All I needed to add to the C# script controlling the behaviour of the agent was an additional observation for the velocity of the agent in the z (vertical) direction, an additional force on the agent in the z direction, and the negative reward for a collision with the boundary. In the 2D plane there was an easy way for episodes to end by the agent sphere rolling off the edge, this was not the case now so I added a time limit to each episode of 1000 steps. Finally, since the problem had increased in complexity (there were now 9 inputs and 3 outputs) I took advantage of the ability to run multiple environments simultaneously in Unity, adding a further 7 copies of the agent/target/box.
 
 ![RollerBall 02 Multi Environment](./rollerball_02_multi_environment.PNG)
 
@@ -98,7 +98,33 @@ Training progress is shown here in blue (alongside the previous run in orange), 
 
 ## Adding orientation control
 
+The previous tasks employed a spherical agent with no requirement for directional control. The agent only needed to translate its own position close to that of the target. The logical next step was therefore to add a 'face' to the agent, and only allow it to complete the task by colliding this face with the target.
 
+To do this I changed the agent into a cube, and only gave a reward if the front side of this cube collided with the target. I added code to the C# script that gave the agent three degrees of rotational freedom: around its x-axis (pitch), y-axis (yaw), and z-axis (roll). Implementing smooth rotations was tricky, but ultimately I was able to have the agent rotate based on inputs from each of the three directions. This meant that there were now an additional three outputs on top of the existing three.
+
+![BlueAgent Environment](./blueagent_environment.PNG)
+
+This change made an enormous difference to the difficulty of the task and I initially spent a lot of time trying and failing to train the agent. First, I experimented with the observations provided to the agent:
+
+- Positions of agent and target, agent velocity (as previous) - unsuccessful
+- Added agent's current rotation - unsuccessful
+- Added agent-to-target vector (center to center) - unsuccessful
+- Changed agent-to-target vector (face of agent to target surface) - unsuccessful
+- Changed agent-to-target vector (center of agent to target surface, normalised) - unsucessful
+- Added magnitude of vector (i.e. distance) from agent to target - unsuccesful
+- Added agent's current angular velocity - partially successful
+
+This experimentation was not entirely wasted since it allowed me to observe improvements in the agent's ability to control its own position/orientation, and eventually achieve some success in the task. However, it's overall performance was poor, nowhere near the average rewards achieved in the previous tasks.
+
+At this point I put some thought into the other side of the problem, the controls. I realised that the roll (rotation around the z-axis) was redundant in terms of the task I was trying to achieve. It didn't matter if the face was 'upside down' upon impact with the target, only that it was facing the target. This meant I could reduce the output space to five numbers (forces in the x, y and z directions; rotations around the x-axis and y-axis) which helped considerably.
+
+Finally, I increased the capacity of the neural network to 3 layers of 512 units each. 
+
+LOOK FOR RUN WITHOUT TIME PENALTY
+
+![tensorboard BlueAgent_02](./tensorboard_blueagent_02.PNG)
+
+Getting the reward
 
 ## Directional observation using rays
 
